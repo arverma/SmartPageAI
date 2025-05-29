@@ -182,7 +182,7 @@ async function handleCaptureAndSummarize(request, sendResponse) {
       sendResponse({ error: result.error.message });
     } else {
       sendResponse({
-        summary: result.choices[0].message.content,
+        result: result.choices[0].message.content,
         screenshot: screenshotUrl,
       });
     }

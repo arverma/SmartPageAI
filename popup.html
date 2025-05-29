@@ -44,11 +44,34 @@
       <!-- Settings Card -->
       <section id="settingsPanel" class="mdc-card settings-card" style="display: none" aria-label="Settings Panel">
         <div class="mdc-card__content">
-          <h2 class="mdc-typography--headline6">OpenAI API key</h2>
-          <input type="password" id="apiKey" class="mdc-text-field__input" placeholder="Enter your OpenAI API Key" aria-label="OpenAI API Key" />
-          <div id="apiKeyFeedback" class="feedback"></div>
+          <h2 class="mdc-typography--headline6">API Keys</h2>
+          <div class="provider-settings">
+            <div class="provider-section" data-provider="openai">
+              <div class="provider-header" tabindex="0">
+                <img src="images/openai.png" alt="OpenAI" class="provider-logo" />
+                OpenAI
+                <span class="accordion-arrow material-icons">expand_more</span>
+              </div>
+              <div class="provider-body">
+                <input type="password" id="openaiApiKey" class="mdc-text-field__input" placeholder="Enter your OpenAI API Key" aria-label="OpenAI API Key" />
+                <div id="openaiApiKeyFeedback" class="feedback"></div>
+              </div>
+            </div>
+            <div class="provider-section" data-provider="gemini">
+              <div class="provider-header" tabindex="0">
+                <img src="images/gemini.png" alt="Gemini" class="provider-logo" />
+                Gemini
+                <span class="accordion-arrow material-icons">expand_more</span>
+              </div>
+              <div class="provider-body" style="display:none;">
+                <input type="password" id="geminiApiKey" class="mdc-text-field__input" placeholder="Enter your Gemini API Key" aria-label="Gemini API Key" />
+                <div id="geminiApiKeyFeedback" class="feedback"></div>
+              </div>
+            </div>
+            <!-- Add more providers here -->
+          </div>
           <h2 class="mdc-typography--headline6">Manage Prompts</h2>
-          <textarea id="settingsCustomPrompt" class="mdc-text-field__input" rows="3" placeholder="Edit or write your prompt here..." aria-label="Prompt Text (Settings)"></textarea>
+          <textarea id="settingsCustomPrompt" class="mdc-text-field__input" rows="3" placeholder="Write your new prompt definition here..." aria-label="Prompt Text (Settings)"></textarea>
           <div class="prompt-save-row">
             <input type="text" id="promptName" class="mdc-text-field__input" placeholder="Prompt name (e.g. 'Summarize Article')" aria-label="Prompt Name" />
             <button id="savePromptBtn" class="mdc-button mdc-button--outlined" aria-label="Save Prompt"><span class="material-icons">save</span></button>
@@ -87,7 +110,7 @@
           <div class="button-row">
             <button id="assist">Assist</button>
           </div>
-          <div id="summary" class="summary" ></div>
+          <div id="result" class="result" ></div>
           <img id="screenshot" class="screenshot" alt="Screenshot preview" />
         </div>
       </section>

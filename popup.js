@@ -1,10 +1,56 @@
 import { AppState } from './src/state.js';
 import { PopupUI} from './src/components/popup/PopupUI.js';
 import { SettingsUI } from './src/components/settings/SettingsUI.js';
-import { ApiService } from './src/services/api.js';
+import { OpenAIService, GeminiService } from './src/services/api.js';
 import { captureVisibleTab } from './src/utils/helpers.js';
+import { MODEL_LIST } from './src/constants/models.js';
 
 let popupUI, settingsUI;
+
+// Accordion logic for provider settings
+function setupProviderAccordion() {
+  const sections = document.querySelectorAll('.provider-section');
+  sections.forEach(section => {
+    const header = section.querySelector('.provider-header');
+    const body = section.querySelector('.provider-body');
+    header.addEventListener('click', () => {
+      const isActive = section.classList.contains('active');
+      if (isActive) {
+        section.classList.remove('active');
+        body.style.display = 'none';
+      } else {
+        section.classList.add('active');
+        body.style.display = 'block';
+      }
+    });
+    // Optionally expand OpenAI by default
+    if (section.dataset.provider === 'openai') {
+      section.classList.add('active');
+      body.style.display = 'block';
+    }
+  });
+}
+
+// Provider API key state management
+const PROVIDERS = ['openai', 'gemini'];
+
+function saveProviderApiKey(provider, key) {
+  chrome.storage.local.get(['apiKeys'], (result) => {
+    const apiKeys = result.apiKeys || {};
+    apiKeys[provider] = key;
+    chrome.storage.local.set({ apiKeys });
+  });
+}
+
+function loadProviderApiKeys() {
+  chrome.storage.local.get(['apiKeys'], (result) => {
+    const apiKeys = result.apiKeys || {};
+    PROVIDERS.forEach(provider => {
+      const input = document.getElementById(`${provider}ApiKey`);
+      if (input) input.value = apiKeys[provider] || '';
+    });
+  });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   await AppState.initialize();
@@ -26,8 +72,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('assist').addEventListener('click', async () => {
     const state = AppState.state;
     try {
-      if (!state.apiKey) {
-        popupUI.showError('Please set your API key in settings');
+      // Check for selected model and API key
+      const modelSelect = document.getElementById('modelSelect');
+      const selectedModel = modelSelect.value;
+      // Get API keys from storage
+      const apiKeys = await new Promise(resolve => {
+        chrome.storage.local.get(['apiKeys'], (result) => resolve(result.apiKeys || {}));
+      });
+      const modelObj = MODEL_LIST.find(m => m.id === selectedModel);
+      if (!selectedModel || !modelObj || !apiKeys[modelObj.provider]) {
+        popupUI.showError('Please select a model and set its API key in settings');
         return;
       }
       // Use the current textarea value as the prompt
@@ -65,15 +119,24 @@ document.addEventListener('DOMContentLoaded', async () => {
           chrome.runtime.onMessage.addListener(handler);
         });
       }
-      // Generate summary
-      const apiService = new ApiService(state.apiKey);
-      const summary = await apiService.summarizeContent(screenshotUrl, finalPrompt, state.selectedModel);
+      // Instantiate the correct LLM service
+      let llmService;
+      if (modelObj.provider === 'openai') {
+        llmService = new OpenAIService(apiKeys[modelObj.provider]);
+      } else if (modelObj.provider === 'gemini') {
+        llmService = new GeminiService(apiKeys[modelObj.provider]);
+      } else {
+        popupUI.showError('Unsupported provider: ' + modelObj.provider);
+        return;
+      }
+      // Generate content
+      const resultText = await llmService.generateContent(screenshotUrl, finalPrompt, selectedModel);
       // Update UI with results
-      popupUI.updateSummary(summary);
+      popupUI.updateResult(resultText);
       popupUI.updateScreenshot(screenshotUrl);
-      popupUI.showSuccess('Summary generated successfully!');
+      popupUI.showSuccess('Assist Completed!');
     } catch (error) {
-      popupUI.showError(error.message || 'Failed to generate summary');
+      popupUI.showError(error.message || 'Failed to generate result');
     } finally {
       // Hide loading state
       popupUI.updateLoadingState(false);
@@ -92,4 +155,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('screenshotModal').classList.remove('show');
     document.getElementById('fullPageScreenshotPreview').src = '';
   });
+
+  // Reset button clears all API keys and custom prompts, and shows a snackbar
+  document.getElementById('resetPromptsBtn').addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to reset all API keys and custom prompts?')) return;
+    await new Promise(resolve => chrome.storage.local.remove(['apiKeys'], resolve));
+    await new Promise(resolve => chrome.storage.sync.remove(['apiKey', 'customPrompts'], resolve));
+    // Restore default prompts in storage and state
+    await AppState.resetPromptsToDefault();
+    AppState.state.selectedModel = null;
+    // Feedback
+    const snackbar = document.getElementById('snackbar');
+    if (snackbar) {
+      snackbar.textContent = 'All API keys and custom prompts have been reset.';
+      snackbar.classList.add('show');
+      setTimeout(() => snackbar.classList.remove('show'), 2000);
+    }
+  });
+
+  setupProviderAccordion();
+  loadProviderApiKeys();
 });
