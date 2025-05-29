@@ -4,15 +4,14 @@ import { showSnackbar } from '../../utils/helpers.js';
 // SettingsUI component for managing the settings panel
 export class SettingsUI {
   constructor() {
+    this.PROVIDERS = ['openai', 'gemini'];
     this.elements = {
-      apiKey: document.getElementById('apiKey'),
       customPromptList: document.getElementById('customPromptList'),
       promptList: document.getElementById('promptList'),
       savePromptBtn: document.getElementById('savePromptBtn'),
       cancelEditBtn: null, // will be created dynamically
       settingsCustomPrompt: document.getElementById('settingsCustomPrompt'),
       promptName: document.getElementById('promptName'),
-      apiKeyFeedback: document.getElementById('apiKeyFeedback'),
       promptFeedback: document.getElementById('promptFeedback'),
       resetPromptsBtn: document.getElementById('resetPromptsBtn'),
       advancedToggle: document.getElementById('advancedToggle')
@@ -22,7 +21,29 @@ export class SettingsUI {
   }
 
   _setupListeners() {
-    this.elements.apiKey.addEventListener('change', (e) => this.handleApiKeyChange(e));
+    // Provider API key listeners
+    this.PROVIDERS.forEach(provider => {
+      const input = document.getElementById(`${provider}ApiKey`);
+      if (input) {
+        input.addEventListener('change', (e) => {
+          const key = e.target.value.trim();
+          chrome.storage.local.get(['apiKeys'], (result) => {
+            const apiKeys = result.apiKeys || {};
+            apiKeys[provider] = key;
+            chrome.storage.local.set({ apiKeys }, () => {
+              // Show feedback
+              const feedback = document.getElementById(`${provider}ApiKeyFeedback`);
+              if (feedback) {
+                feedback.textContent = 'Saved!';
+                setTimeout(() => { feedback.textContent = ''; }, 1200);
+              }
+              // Notify state/UI to update model dropdown
+              AppState.notify();
+            });
+          });
+        });
+      }
+    });
     this.elements.savePromptBtn.addEventListener('click', () => this.handleSaveOrUpdatePrompt());
     this.elements.advancedToggle.addEventListener('click', () => {
       const btn = this.elements.resetPromptsBtn;
@@ -32,16 +53,6 @@ export class SettingsUI {
       toggle.textContent = isHidden ? 'Advanced ▲' : 'Advanced ▼';
     });
     this.elements.resetPromptsBtn.addEventListener('click', () => this.handleResetPrompts());
-  }
-
-  async handleApiKeyChange(event) {
-    const apiKey = event.target.value.trim();
-    if (!apiKey) {
-      showSnackbar('API key cannot be empty', 'error');
-      return;
-    }
-    await AppState.setApiKey(apiKey);
-    showSnackbar('API key saved successfully', 'success');
   }
 
   async handleSaveOrUpdatePrompt() {
@@ -147,7 +158,14 @@ export class SettingsUI {
 
   render(state) {
     this.renderPrompts(state);
-    this.elements.apiKey.value = state.apiKey || '';
+    // Set all provider API key values from storage
+    chrome.storage.local.get(['apiKeys'], (result) => {
+      const apiKeys = result.apiKeys || {};
+      this.PROVIDERS.forEach(provider => {
+        const input = document.getElementById(`${provider}ApiKey`);
+        if (input) input.value = apiKeys[provider] || '';
+      });
+    });
     this.updateEditModeUI(this.editingPromptId !== null);
   }
 

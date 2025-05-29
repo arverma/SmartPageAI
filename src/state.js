@@ -96,6 +96,13 @@ class State {
     this.notify();
   }
 
+  resetState() {
+    this.state.selectedModel = null;
+    this.state.selectedPromptId = null;
+    this.state.customPrompts = [];
+    this.notify();
+  }
+
   setSelectedModel(model) {
     this.state.selectedModel = model;
     this.notify();

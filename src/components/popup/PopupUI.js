@@ -12,7 +12,7 @@ export class PopupUI {
       promptSelect: document.getElementById('promptSelect'),
       modelSelect: document.getElementById('modelSelect'),
       mainCustomPrompt: document.getElementById('mainCustomPrompt'),
-      summary: document.getElementById('summary'),
+      result: document.getElementById('result'),
       screenshot: document.getElementById('screenshot'),
       toggleSettings: document.getElementById('toggleSettings'),
       assist: document.getElementById('assist')
@@ -50,25 +50,19 @@ export class PopupUI {
     textarea.style.height = newHeight + 'px';
   }
 
-  render(state) {
-    // Render API key (read-only in main area)
-    this.elements.apiKey.value = state.apiKey || '';
-    // Render prompts dropdown
+  async render(state) {
+    // Debug log to check if render is called and what the state is
     this.renderPrompts(state);
-    // Render models dropdown
     this.renderModels(state);
     // Always set textarea to the selected prompt's value ONLY if the user hasn't edited it
     if (state.customPrompts && state.customPrompts.length > 0) {
       const selected = state.customPrompts.find(p => p.id === state.selectedPromptId) || state.customPrompts[0];
-      // Only update textarea if it doesn't match the selected prompt (prevents overwriting user edits)
       if (this.elements.mainCustomPrompt.value !== selected.text) {
         this.elements.mainCustomPrompt.value = selected.text;
         requestAnimationFrame(() => this.autoResizeTextarea());
       }
-      this.elements.assist.disabled = !state.apiKey || !this.elements.mainCustomPrompt.value.trim();
     } else {
       this.elements.mainCustomPrompt.value = '';
-      this.elements.assist.disabled = true;
     }
   }
 
@@ -97,22 +91,47 @@ export class PopupUI {
   renderModels(state) {
     const modelSelect = this.elements.modelSelect;
     modelSelect.innerHTML = '';
-    MODEL_LIST.forEach(model => {
-      const option = document.createElement('option');
-      option.value = model.id;
-      option.textContent = model.name;
-      if (state.selectedModel === model.id) option.selected = true;
-      modelSelect.appendChild(option);
+    chrome.storage.local.get(['apiKeys'], (result) => {
+      const apiKeys = result.apiKeys || {};
+      const filteredModels = MODEL_LIST.filter(model => apiKeys[model.provider]);
+      const grouped = {};
+      filteredModels.forEach(model => {
+        if (!grouped[model.provider]) grouped[model.provider] = [];
+        grouped[model.provider].push(model);
+      });
+      if (filteredModels.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No models available';
+        modelSelect.appendChild(option);
+        // Disable Assist button if no models
+        this.elements.assist.disabled = true;
+        return;
+      }
+      Object.keys(grouped).forEach(provider => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = provider.charAt(0).toUpperCase() + provider.slice(1);
+        grouped[provider].forEach(model => {
+          const option = document.createElement('option');
+          option.value = model.id;
+          option.textContent = model.name;
+          if (state.selectedModel === model.id) option.selected = true;
+          optgroup.appendChild(option);
+        });
+        modelSelect.appendChild(optgroup);
+      });
+      // Enable Assist button if a model is selected
+      this.elements.assist.disabled = !modelSelect.value;
     });
   }
 
-  updateSummary(summary) {
-    if (!summary) {
-      this.elements.summary.innerHTML = '<div class="error">No summary generated</div>';
+  updateResult(result) {
+    if (!result) {
+      this.elements.result.innerHTML = '<div class="error">No result generated</div>';
       return;
     }
-    this.elements.summary.style.display = 'block';
-    this.elements.summary.innerHTML = marked.parse(summary);
+    this.elements.result.style.display = 'block';
+    this.elements.result.innerHTML = marked.parse(result);
   }
 
   updateScreenshot(screenshotUrl) {
@@ -128,8 +147,8 @@ export class PopupUI {
     if (isLoading) {
       this.elements.assist.disabled = true;
       this.elements.assist.innerHTML = 'Assist <span class="button-spinner"></span>';
-      this.elements.summary.innerHTML = '';
-      this.elements.summary.style.display = 'none';
+      this.elements.result.innerHTML = '';
+      this.elements.result.style.display = 'none';
       this.clearScreenshot();
     } else {
       this.elements.assist.disabled = false;
