@@ -1,7 +1,8 @@
 export const DEFAULT_PROMPTS = [
   { id: 'default-1', name: 'Summarize', text: 'Summarize the key points and main ideas of this webpage.' },
-  { id: 'default-2', name: 'Q&A', text: 'Read the webpage carefully and answer any questions posed within it as accurately as possible.' },
-  { id: 'default-3', name: 'Translate', text: 'Translate the main content of this webpage into Hindi, ensuring that the meaning is preserved.' },
-  { id: 'default-4', name: 'Explain', text: 'Explain the main concepts or ideas from this webpage in simple and easy-to-understand terms.' },
+  { id: 'default-2', name: 'Custom', text: 'Edit the prompt to your liking.' },
+  { id: 'default-3', name: 'Explain', text: 'Explain the main concepts or ideas from this webpage in simple and easy-to-understand terms.' },
+  { id: 'default-4', name: 'Q&A', text: 'Read the webpage carefully and answer any questions posed within it as accurately as possible.' },
+  { id: 'default-5', name: 'Translate', text: 'Translate the main content of this webpage into Hindi, ensuring that the meaning is preserved.' },
   { id: 'default-6', name: 'Web Design Analysis', text: 'Analyze the attached image of a full webpage and provide detailed feedback on potential improvements. Consider the following aspects in your analysis:\n\n1. **Design Principles:**\n   - Evaluate the use of color, typography, and layout. Suggest improvements based on modern design trends.\n   - Assess visual hierarchy to ensure important elements are easily noticeable.\n\n2. **UI/UX:**\n   - Review the navigation structure for clarity and ease of use. Suggest enhancements for a better user journey.\n   - Identify areas where the user interface could be more intuitive or interactive.\n\n3. **Accessibility:**\n   - Check compliance with the latest accessibility standards (like WCAG). Identify potential barriers for users with disabilities.\n   - Suggest ways to improve text readability, alternative text for images, and keyboard navigation.\n\nProvide specific examples and actionable suggestions for each area of improvement.' }
 ];
