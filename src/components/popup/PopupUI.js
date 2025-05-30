@@ -93,13 +93,67 @@ export class PopupUI {
       this.elements.result.innerHTML = '<div class="error">No result generated</div>';
       return;
     }
+
+    // Clear and set up the result area
+    this.elements.result.innerHTML = '';
     this.elements.result.style.display = 'block';
-    this.elements.result.innerHTML = marked.parse(result);
+
+    // Add result content
+    let resultContent = document.createElement('div');
+    resultContent.id = 'resultContent';
+    resultContent.innerHTML = marked.parse(result);
+    resultContent.style.position = 'relative';
+    resultContent.style.overflow = 'auto';
+    this.elements.result.appendChild(resultContent);
+
+    // Add floating copy button
+    let copyBtn = document.createElement('button');
+    copyBtn.id = 'copyResult';
+    copyBtn.className = 'mdc-icon-button';
+    copyBtn.title = 'Copy to clipboard';
+    copyBtn.setAttribute('aria-label', 'Copy to clipboard');
+    copyBtn.innerHTML = '<span class="material-icons">content_copy</span>';
+    this.elements.result.appendChild(copyBtn);
+
+    // Copy handler with animation
+    copyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(resultContent.textContent);
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = '<span class="material-icons">check</span>';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.innerHTML = '<span class="material-icons">content_copy</span>';
+        }, 1200);
+      } catch (err) {
+        console.error('Copy failed:', err);
+      }
+    };
+
+    // Sticky logic
+    const handleScroll = () => {
+      const rect = this.elements.result.getBoundingClientRect();
+      if (rect.top < 70) {
+        copyBtn.classList.add('sticky');
+        // Dynamically set left so it stays at the right edge of the result box
+        copyBtn.style.left = (rect.right - copyBtn.offsetWidth - 5) + 'px';
+        copyBtn.style.right = 'auto';
+      } else {
+        copyBtn.classList.remove('sticky');
+        copyBtn.style.left = '';
+        copyBtn.style.right = '5px'; // match your non-sticky right
+      }
+    };
+    resultContent.onscroll = handleScroll;
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    // Clean up on rerender
+    if (this._lastScrollHandler) window.removeEventListener('scroll', this._lastScrollHandler);
+    this._lastScrollHandler = handleScroll;
 
     // Render the context section (including screenshot) in the dedicated container
     const contextContainer = document.getElementById('contextContainer');
     if (contextContainer) {
-      // Always show the context area for testing
       const { content = '', metadata = {} } = context || {};
       const contextHtml = `
         <div class="context-section">
@@ -125,7 +179,6 @@ export class PopupUI {
       `;
       contextContainer.innerHTML = contextHtml;
       contextContainer.style.display = 'block';
-      // Add event listener for the toggle (CSP-safe)
       const toggleBtn = contextContainer.querySelector('.context-toggle');
       if (toggleBtn) {
         toggleBtn.addEventListener('click', function() {
@@ -133,7 +186,6 @@ export class PopupUI {
         });
       }
     }
-    // Always hide the main screenshot element
     if (this.elements.screenshot) {
       this.elements.screenshot.style.display = 'none';
       this.elements.screenshot.src = '';
