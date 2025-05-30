@@ -1,6 +1,6 @@
-## Privacy Policy: SmartPage Summariser
+## Privacy Policy: WebPage Assistance
 
-SmartPage Summariser is a Chrome extension that helps users summarize webpage content using their own OpenAI API key.
+WebPage Assistance is a Chrome extension that helps users summarize webpage content using their own OpenAI API key.
 
 ### Data Collection
 

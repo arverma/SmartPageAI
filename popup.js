@@ -2,7 +2,7 @@ import { AppState } from './src/state.js';
 import { PopupUI} from './src/components/popup/PopupUI.js';
 import { SettingsUI } from './src/components/settings/SettingsUI.js';
 import { OpenAIService, GeminiService } from './src/services/api.js';
-import { captureVisibleTab } from './src/utils/helpers.js';
+import { captureVisibleTab, extractWebpageContent } from './src/utils/helpers.js';
 import { MODEL_LIST } from './src/constants/models.js';
 
 let popupUI, settingsUI;
@@ -68,6 +68,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   popupUI.render(AppState.state);
   settingsUI.render(AppState.state);
 
+  // Load saved selections
+  chrome.storage.local.get(['selectedModel', 'selectedPrompt'], (result) => {
+    if (result.selectedModel) {
+      document.getElementById('modelSelect').value = result.selectedModel;
+    }
+    if (result.selectedPrompt) {
+      document.getElementById('promptSelect').value = result.selectedPrompt;
+    }
+  });
+
+  // Save model selection when changed
+  document.getElementById('modelSelect').addEventListener('change', (e) => {
+    chrome.storage.local.set({ selectedModel: e.target.value });
+  });
+
+  // Save prompt selection when changed
+  document.getElementById('promptSelect').addEventListener('change', (e) => {
+    chrome.storage.local.set({ selectedPrompt: e.target.value });
+  });
+
   // Handle assist button click
   document.getElementById('assist').addEventListener('click', async () => {
     const state = AppState.state;
@@ -95,13 +115,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       const finalPrompt = promptText + markdownSuffix;
       // Show loading state
       popupUI.updateLoadingState(true);
+
+      // Extract webpage content
+      let webpageContent;
+      try {
+        webpageContent = await extractWebpageContent();
+      } catch (error) {
+        console.warn('Failed to extract webpage content:', error);
+        // Continue without webpage content
+      }
+
       // Screenshot mode logic
-      const screenshotMode = document.getElementById('fullScreenshotRadio').checked ? 'full' : 'visible';
+      const isDeepContext = AppState.state.isDeepContext;
       let screenshotUrl = null;
-      if (screenshotMode === 'visible') {
-        screenshotUrl = await captureVisibleTab();
+      if (!isDeepContext) {
+        // Shallow context: only include webpage content, no screenshot
+        screenshotUrl = null;
       } else {
-        // Full page screenshot: trigger capture and wait for result
+        // Deep context: include webpage content + full page screenshot
         screenshotUrl = await new Promise((resolve, reject) => {
           chrome.runtime.sendMessage({ type: 'START_FULL_PAGE_CAPTURE', showModal: false }, (response) => {
             if (response && response.error) {
@@ -130,9 +161,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       // Generate content
-      const resultText = await llmService.generateContent(screenshotUrl, finalPrompt, selectedModel);
-      // Update UI with results
-      popupUI.updateResult(resultText);
+      const resultText = await llmService.generateContent(screenshotUrl, finalPrompt, selectedModel, webpageContent);
+      // Update UI with results (pass screenshotUrl to updateResult)
+      popupUI.updateResult(resultText, webpageContent, screenshotUrl);
       popupUI.updateScreenshot(screenshotUrl);
       popupUI.showSuccess('Assist Completed!');
     } catch (error) {

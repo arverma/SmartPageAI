@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>SmartPage AI</title>
+    <title>WebPage Assistance</title>
     <script type="module" src="popup.js"></script>
     <script src="marked.min.js"></script>
     <link rel="stylesheet" href="popup.css" />
@@ -13,7 +13,7 @@
     <!-- Top App Bar -->
     <header class="mdc-top-app-bar" role="banner">
       <div class="mdc-top-app-bar__row" style="display: flex; align-items: center; justify-content: space-between;">
-        <span class="mdc-top-app-bar__title" style="margin-left:8px;">SmartPage AI</span>
+        <span class="mdc-top-app-bar__title" style="margin-left:8px;">WebPage Assistance</span>
         <div style="display: flex; align-items: center; gap: 8px;">
           <button id="fullPageScreenshotBtn" class="mdc-icon-button" title="Full Page Screenshot" aria-label="Full Page Screenshot" style="width:40px;height:40px;min-width:40px;min-height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0;">
             <img src="images/capture.png" alt="Screenshot" style="width:22px;height:22px;object-fit:contain;display:block;" />
@@ -97,21 +97,20 @@
             </div>
           </div>
           <textarea id="mainCustomPrompt" rows="3" placeholder="Edit or write your prompt here..." aria-label="Prompt Text"></textarea>
-          <div class="screenshot-mode-toggle" style="margin-bottom: 12px; display: flex; gap: 12px; align-items: center; justify-content: center;">
-            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-              <input type="radio" name="screenshotMode" id="visibleScreenshotRadio" value="visible" checked style="accent-color: var(--primary);" />
-              <span>Visible Page</span>
+          <div class="context-mode-toggle" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <span class="context-label">Shallow</span>
+            <label class="switch">
+              <input type="checkbox" id="contextModeToggle">
+              <span class="slider round"></span>
             </label>
-            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-              <input type="radio" name="screenshotMode" id="fullScreenshotRadio" value="full" style="accent-color: var(--primary);" />
-              <span>Full Page</span>
-            </label>
+            <span class="context-label">Deep Context</span>
           </div>
           <div class="button-row">
             <button id="assist">Assist</button>
           </div>
-          <div id="result" class="result" ></div>
+          <div id="result" class="result"></div>
           <img id="screenshot" class="screenshot" alt="Screenshot preview" />
+          <div id="contextContainer" class="context-container"></div>
         </div>
       </section>
     </main>

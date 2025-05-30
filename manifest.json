@@ -1,9 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "SmartPage AI",
+  "name": "WebPage Assistance",
   "version": "1.0",
   "description": "Smart assistant for any webpage",
-  "permissions": ["tabs", "storage", "scripting", "sidePanel"],
+  "permissions": [
+    "tabs",
+    "storage",
+    "scripting",
+    "sidePanel",
+    "activeTab"
+  ],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/background.js",
