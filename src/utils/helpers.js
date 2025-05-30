@@ -74,3 +74,79 @@ export const sanitizeHTML = (str) => {
   temp.textContent = str;
   return temp.innerHTML;
 };
+
+export const extractWebpageContent = () => {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) {
+        reject(new Error('No active tab found'));
+        return;
+      }
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        function: function() {
+          try {
+            const getVisibleText = (element) => {
+              if (!element) return '';
+              let style;
+              try { style = window.getComputedStyle(element); } catch (e) { style = {}; }
+              if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return '';
+              let text = '';
+              if (element.nodeType === Node.TEXT_NODE) {
+                text = element.textContent.trim();
+              } else {
+                if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'SVG', 'CANVAS'].includes(element.tagName)) return '';
+                for (const child of element.childNodes) {
+                  text += getVisibleText(child) + ' ';
+                }
+              }
+              return text.trim();
+            };
+            const mainContentSelectors = [
+              'article',
+              'main',
+              '[role="main"]',
+              '.main-content',
+              '.content',
+              '#content',
+              '.post',
+              '.article',
+              '.entry-content',
+              '.post-content',
+              '.article-content',
+              '.story-content',
+              '.blog-post',
+              '.news-content'
+            ];
+            let mainContent = null;
+            for (const selector of mainContentSelectors) {
+              const element = document.querySelector(selector);
+              if (element) {
+                mainContent = element;
+                break;
+              }
+            }
+            mainContent = mainContent || document.body;
+            const content = getVisibleText(mainContent);
+            const metadata = {
+              title: document.title,
+              url: window.location.href,
+              description: document.querySelector('meta[name="description"]')?.content || '',
+              author: document.querySelector('meta[name="author"]')?.content || '',
+              date: document.querySelector('meta[property="article:published_time"]')?.content || ''
+            };
+            return { content, metadata };
+          } catch (e) {
+            return null;
+          }
+        }
+      }, (results) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve(results[0]?.result);
+      });
+    });
+  });
+};

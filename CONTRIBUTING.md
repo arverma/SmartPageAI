@@ -1,4 +1,4 @@
-# Contributing to SmartPage AI
+# Contributing to WebPage Assistance
 
 Thank you for your interest in contributing! Please follow these guidelines:
 
@@ -8,4 +8,4 @@ Thank you for your interest in contributing! Please follow these guidelines:
 - Submit a pull request with a clear description of your changes.
 - Be respectful and constructive in all communications.
 
-We welcome all contributions to make SmartPage AI better! 
+We welcome all contributions to make WebPage Assistance better! 

@@ -15,7 +15,8 @@ export class PopupUI {
       result: document.getElementById('result'),
       screenshot: document.getElementById('screenshot'),
       toggleSettings: document.getElementById('toggleSettings'),
-      assist: document.getElementById('assist')
+      assist: document.getElementById('assist'),
+      contextModeToggle: document.getElementById('contextModeToggle')
     };
     this._setupListeners();
   }
@@ -25,6 +26,7 @@ export class PopupUI {
     this.elements.promptSelect.addEventListener('change', (e) => this.handlePromptChange(e));
     this.elements.mainCustomPrompt.addEventListener('input', () => this.autoResizeTextarea());
     this.elements.modelSelect.addEventListener('change', (e) => this.handleModelChange(e));
+    this.elements.contextModeToggle.addEventListener('change', (e) => this.handleContextModeChange(e));
   }
 
   toggleSettings() {
@@ -36,11 +38,21 @@ export class PopupUI {
   handlePromptChange(event) {
     const selectedPromptId = event.target.value;
     AppState.setSelectedPromptId(selectedPromptId);
-    // Do NOT update the textarea here; let render() handle it.
+    // Update the textarea with the selected prompt's text
+    const selectedPrompt = AppState.state.customPrompts.find(p => p.id === selectedPromptId);
+    if (selectedPrompt) {
+      this.elements.mainCustomPrompt.value = selectedPrompt.text;
+    }
   }
 
   handleModelChange(event) {
-    AppState.setSelectedModel(event.target.value);
+    const selectedModel = event.target.value;
+    AppState.setSelectedModel(selectedModel);
+  }
+
+  handleContextModeChange(event) {
+    const isDeep = event.target.checked;
+    AppState.setContextMode(isDeep);
   }
 
   autoResizeTextarea() {
@@ -51,96 +63,89 @@ export class PopupUI {
   }
 
   async render(state) {
-    // Debug log to check if render is called and what the state is
-    this.renderPrompts(state);
-    this.renderModels(state);
-    // Always set textarea to the selected prompt's value ONLY if the user hasn't edited it
-    if (state.customPrompts && state.customPrompts.length > 0) {
-      const selected = state.customPrompts.find(p => p.id === state.selectedPromptId) || state.customPrompts[0];
-      if (this.elements.mainCustomPrompt.value !== selected.text) {
-        this.elements.mainCustomPrompt.value = selected.text;
-        requestAnimationFrame(() => this.autoResizeTextarea());
-      }
-    } else {
-      this.elements.mainCustomPrompt.value = '';
-    }
-  }
-
-  renderPrompts(state) {
-    const promptSelect = this.elements.promptSelect;
-    promptSelect.innerHTML = '';
-    if (!state.customPrompts || state.customPrompts.length === 0) {
-      const option = document.createElement('option');
-      option.value = '';
-      option.textContent = 'No prompts available';
-      promptSelect.appendChild(option);
-      return;
-    }
-    state.customPrompts.forEach(prompt => {
-      const option = document.createElement('option');
-      option.value = prompt.id;
-      option.textContent = prompt.name;
-      option.setAttribute('aria-label', prompt.name);
-      promptSelect.appendChild(option);
-    });
-    // Set the select value to a valid prompt ID
-    const validId = state.selectedPromptId && state.customPrompts.find(p => p.id === state.selectedPromptId) ? state.selectedPromptId : state.customPrompts[0].id;
-    promptSelect.value = validId;
-  }
-
-  renderModels(state) {
+    // Update model select
     const modelSelect = this.elements.modelSelect;
-    modelSelect.innerHTML = '';
-    chrome.storage.local.get(['apiKeys'], (result) => {
-      const apiKeys = result.apiKeys || {};
-      const filteredModels = MODEL_LIST.filter(model => apiKeys[model.provider]);
-      const grouped = {};
-      filteredModels.forEach(model => {
-        if (!grouped[model.provider]) grouped[model.provider] = [];
-        grouped[model.provider].push(model);
-      });
-      if (filteredModels.length === 0) {
-        const option = document.createElement('option');
-        option.value = '';
-        option.textContent = 'No models available';
-        modelSelect.appendChild(option);
-        // Disable Assist button if no models
-        this.elements.assist.disabled = true;
-        return;
-      }
-      Object.keys(grouped).forEach(provider => {
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = provider.charAt(0).toUpperCase() + provider.slice(1);
-        grouped[provider].forEach(model => {
-          const option = document.createElement('option');
-          option.value = model.id;
-          option.textContent = model.name;
-          if (state.selectedModel === model.id) option.selected = true;
-          optgroup.appendChild(option);
-        });
-        modelSelect.appendChild(optgroup);
-      });
-      // Enable Assist button if a model is selected
-      this.elements.assist.disabled = !modelSelect.value;
-    });
+    modelSelect.innerHTML = MODEL_LIST.map(model => 
+      `<option value="${model.id}" ${state.selectedModel === model.id ? 'selected' : ''}>${model.name}</option>`
+    ).join('');
+
+    // Update prompt select
+    const promptSelect = this.elements.promptSelect;
+    promptSelect.innerHTML = state.customPrompts.map(prompt => 
+      `<option value="${prompt.id}" ${state.selectedPromptId === prompt.id ? 'selected' : ''}>${prompt.name}</option>`
+    ).join('');
+
+    // Update textarea with selected prompt text
+    const selectedPrompt = state.customPrompts.find(p => p.id === state.selectedPromptId);
+    if (selectedPrompt) {
+      this.elements.mainCustomPrompt.value = selectedPrompt.text;
+    }
+
+    // Update context mode toggle
+    if (this.elements.contextModeToggle) {
+      this.elements.contextModeToggle.checked = state.isDeepContext;
+    }
   }
 
-  updateResult(result) {
+  updateResult(result, context, screenshotUrl) {
+    // Render the Markdown output as before
     if (!result) {
       this.elements.result.innerHTML = '<div class="error">No result generated</div>';
       return;
     }
     this.elements.result.style.display = 'block';
     this.elements.result.innerHTML = marked.parse(result);
+
+    // Render the context section (including screenshot) in the dedicated container
+    const contextContainer = document.getElementById('contextContainer');
+    if (contextContainer) {
+      // Always show the context area for testing
+      const { content = '', metadata = {} } = context || {};
+      const contextHtml = `
+        <div class="context-section">
+          <button class="context-toggle">
+            <span class="material-icons">expand_more</span>
+            View Context Sent to Model
+          </button>
+          <div class="context-content">
+            <div class="context-metadata">
+              <strong>Title:</strong> ${metadata.title || ''}<br>
+              <strong>URL:</strong> ${metadata.url || ''}<br>
+              ${metadata.description ? `<strong>Description:</strong> ${metadata.description}<br>` : ''}
+              ${metadata.author ? `<strong>Author:</strong> ${metadata.author}<br>` : ''}
+              ${metadata.date ? `<strong>Date:</strong> ${metadata.date}<br>` : ''}
+            </div>
+            <div class="context-text">
+              <strong>Content:</strong><br>
+              <pre>${content}</pre>
+            </div>
+            ${screenshotUrl ? `<div class="context-screenshot"><strong>Screenshot:</strong><br><img src="${screenshotUrl}" alt="Screenshot preview" style="max-width:100%;border-radius:8px;margin-top:8px;" /></div>` : ''}
+          </div>
+        </div>
+      `;
+      contextContainer.innerHTML = contextHtml;
+      contextContainer.style.display = 'block';
+      // Add event listener for the toggle (CSP-safe)
+      const toggleBtn = contextContainer.querySelector('.context-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          this.parentElement.classList.toggle('expanded');
+        });
+      }
+    }
+    // Always hide the main screenshot element
+    if (this.elements.screenshot) {
+      this.elements.screenshot.style.display = 'none';
+      this.elements.screenshot.src = '';
+    }
   }
 
   updateScreenshot(screenshotUrl) {
-    if (!screenshotUrl) {
+    // Only store the screenshot URL, do not display the image
+    if (this.elements.screenshot) {
+      this.elements.screenshot.src = screenshotUrl || '';
       this.elements.screenshot.style.display = 'none';
-      return;
     }
-    this.elements.screenshot.style.display = 'block';
-    this.elements.screenshot.src = screenshotUrl;
   }
 
   updateLoadingState(isLoading) {

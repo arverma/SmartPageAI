@@ -574,3 +574,149 @@ input:focus, textarea:focus, select:focus, button:focus {
   display: none !important;
   padding: 0;
 }
+
+/* Context Section Styles */
+.context-container {
+  margin-top: 16px;
+  display: none;
+}
+
+.context-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.context-toggle {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--primary-light);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  color: var(--primary);
+  transition: background 0.2s;
+}
+
+.context-toggle:hover {
+  background: #d0e3ff;
+}
+
+.context-toggle .material-icons {
+  transition: transform 0.2s;
+}
+
+.context-section.expanded .context-toggle .material-icons {
+  transform: rotate(180deg);
+}
+
+.context-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  background: #fafafa;
+}
+
+.context-section.expanded .context-content {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.context-metadata {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.context-text {
+  padding: 16px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.context-text pre {
+  margin: 8px 0 0 0;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.context-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.context-mode-toggle {
+  background: var(--surface);
+  padding: 8px 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(60,64,67,.1);
+}

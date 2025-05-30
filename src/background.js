@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
           } else if (!errMsg.includes('Could not establish connection. Receiving end does not exist.')) {
             // Only log other errors
-            console.error('[SmartPageAI] Error sending START_FULL_PAGE_CAPTURE:', errMsg);
+            console.error('[WebPage Assistance] Error sending START_FULL_PAGE_CAPTURE:', errMsg);
             sendResponse({ started: false, error: 'Full page screenshot is not available on this page.' });
           } else {
             // Suppress the error after retry
@@ -129,7 +129,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
   if (request.type === 'FULL_PAGE_CAPTURE_REQUEST') {
-    console.log('[SmartPageAI] Background received FULL_PAGE_CAPTURE_REQUEST');
+    console.log('[WebPage Assistance] Background received FULL_PAGE_CAPTURE_REQUEST');
     chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
       sendResponse({ dataUrl });
     });

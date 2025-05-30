@@ -9,18 +9,31 @@ class State {
       customPrompts: [],
       selectedPromptId: null,
       selectedModel: 'gpt-4o',
+      isDeepContext: false
     };
   }
 
   async initialize() {
     const apiKey = await this.getApiKey();
     const customPrompts = await this.getCustomPrompts();
+    const { selectedModel, selectedPromptId, isDeepContext } = await chrome.storage.local.get(['selectedModel', 'selectedPromptId', 'isDeepContext']);
+    
     this.state.apiKey = apiKey || '';
     this.state.customPrompts = customPrompts || [];
-    // Always set selectedPromptId to a valid prompt ID
-    if (!this.state.selectedPromptId || !customPrompts.find(p => p.id === this.state.selectedPromptId)) {
+    
+    // Set selected model from storage or default
+    this.state.selectedModel = selectedModel || 'gpt-4';
+    
+    // Set selected prompt from storage or default
+    if (selectedPromptId && customPrompts.find(p => p.id === selectedPromptId)) {
+      this.state.selectedPromptId = selectedPromptId;
+    } else {
       this.state.selectedPromptId = customPrompts[0]?.id || null;
     }
+
+    // Set context mode from storage or default to shallow
+    this.state.isDeepContext = isDeepContext || false;
+    
     this.notify();
   }
 
@@ -86,6 +99,7 @@ class State {
     if (!promptId || promptId === 'undefined') return;
     if (!this.state.customPrompts.find(p => p.id === promptId)) return;
     this.state.selectedPromptId = promptId;
+    chrome.storage.local.set({ selectedPromptId: promptId });
     this.notify();
   }
 
@@ -105,6 +119,13 @@ class State {
 
   setSelectedModel(model) {
     this.state.selectedModel = model;
+    chrome.storage.local.set({ selectedModel: model });
+    this.notify();
+  }
+
+  setContextMode(isDeep) {
+    this.state.isDeepContext = isDeep;
+    chrome.storage.local.set({ isDeepContext: isDeep });
     this.notify();
   }
 }
