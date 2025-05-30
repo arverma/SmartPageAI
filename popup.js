@@ -204,6 +204,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Update the existing showResult function to use resultContent
+  function showResult(content) {
+    const result = document.getElementById('result');
+    const resultContent = document.getElementById('resultContent');
+    result.style.display = 'block';
+    resultContent.innerHTML = marked.parse(content);
+  }
+
   setupProviderAccordion();
   loadProviderApiKeys();
 });

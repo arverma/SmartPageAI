@@ -163,7 +163,40 @@ export class SettingsUI {
       const apiKeys = result.apiKeys || {};
       this.PROVIDERS.forEach(provider => {
         const input = document.getElementById(`${provider}ApiKey`);
-        if (input) input.value = apiKeys[provider] || '';
+        const feedback = document.getElementById(`${provider}ApiKeyFeedback`);
+        if (input) {
+          input.value = apiKeys[provider] || '';
+          // Remove any existing link
+          let link = document.getElementById(`${provider}ApiKeyLink`);
+          if (link) link.remove();
+          // If no key, show the link
+          if (!apiKeys[provider]) {
+            link = document.createElement('a');
+            link.id = `${provider}ApiKeyLink`;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.display = 'block';
+            link.style.marginTop = '4px';
+            link.style.fontSize = '13px';
+            link.style.color = '#1a73e8';
+            link.style.textDecoration = 'underline';
+            link.style.cursor = 'pointer';
+            link.textContent = provider === 'openai' ? 'Get a free OpenAI API key' : 'Get a free Gemini API key';
+            link.href = provider === 'openai'
+              ? 'https://platform.openai.com/docs/api-reference/introduction'
+              : 'https://makersuite.google.com/app/apikey';
+            // Insert after input
+            input.parentNode.insertBefore(link, feedback);
+            // Hide link on input
+            input.addEventListener('input', function hideLinkOnInput() {
+              if (input.value.trim()) {
+                link.style.display = 'none';
+              } else {
+                link.style.display = 'block';
+              }
+            });
+          }
+        }
       });
     });
     this.updateEditModeUI(this.editingPromptId !== null);

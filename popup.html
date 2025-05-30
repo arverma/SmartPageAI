@@ -13,12 +13,19 @@
     <!-- Top App Bar -->
     <header class="mdc-top-app-bar" role="banner">
       <div class="mdc-top-app-bar__row" style="display: flex; align-items: center; justify-content: space-between;">
-        <span class="mdc-top-app-bar__title" style="margin-left:8px;">WebPage Assistance</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="context-label text text--base text--medium text--secondary" style="font-size: 14px;">Basic</span>
+          <label class="switch">
+            <input type="checkbox" id="contextModeToggle">
+            <span class="slider round"></span>
+          </label>
+          <span class="context-label text text--base text--medium text--secondary" style="font-size: 14px;">Advanced</span>
+        </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="fullPageScreenshotBtn" class="mdc-icon-button" title="Full Page Screenshot" aria-label="Full Page Screenshot" style="width:40px;height:40px;min-width:40px;min-height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0;">
+          <button id="fullPageScreenshotBtn" class="icon-btn" title="Full Page Screenshot" aria-label="Full Page Screenshot" style="width:40px;height:40px;min-width:40px;min-height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0;">
             <img src="images/capture.png" alt="Screenshot" style="width:22px;height:22px;object-fit:contain;display:block;" />
           </button>
-          <button id="toggleSettings" class="mdc-icon-button" title="Settings" aria-label="Settings">
+          <button id="toggleSettings" class="icon-btn" title="Settings" aria-label="Settings">
             <span class="material-icons">settings</span>
           </button>
         </div>
@@ -29,7 +36,7 @@
     <!-- Screenshot Modal -->
     <div id="screenshotModal" class="screenshot-modal">
       <div class="screenshot-modal-content">
-        <button id="closeScreenshotModal" class="mdc-icon-button screenshot-modal-close" title="Close" aria-label="Close">
+        <button id="closeScreenshotModal" class="icon-btn" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.1);">
           <span class="material-icons">close</span>
         </button>
         <img id="fullPageScreenshotPreview" class="screenshot-modal-img" alt="Full Page Screenshot Preview" />
@@ -42,9 +49,9 @@
     <!-- Main Content -->
     <main class="mdc-layout-grid" role="main">
       <!-- Settings Card -->
-      <section id="settingsPanel" class="mdc-card settings-card" style="display: none" aria-label="Settings Panel">
-        <div class="mdc-card__content">
-          <h2 class="mdc-typography--headline6">API Keys</h2>
+      <section id="settingsPanel" class="card settings-card" style="display: none" aria-label="Settings Panel">
+        <div class="card__content">
+          <h2 class="mdc-typography--headline6 text text--md text--semibold text--primary">API Keys</h2>
           <div class="provider-settings">
             <div class="provider-section" data-provider="openai">
               <div class="provider-header" tabindex="0">
@@ -54,7 +61,7 @@
               </div>
               <div class="provider-body">
                 <input type="password" id="openaiApiKey" class="mdc-text-field__input" placeholder="Enter your OpenAI API Key" aria-label="OpenAI API Key" />
-                <div id="openaiApiKeyFeedback" class="feedback"></div>
+                <div id="openaiApiKeyFeedback" class="feedback text text--sm text--error"></div>
               </div>
             </div>
             <div class="provider-section" data-provider="gemini">
@@ -65,29 +72,29 @@
               </div>
               <div class="provider-body" style="display:none;">
                 <input type="password" id="geminiApiKey" class="mdc-text-field__input" placeholder="Enter your Gemini API Key" aria-label="Gemini API Key" />
-                <div id="geminiApiKeyFeedback" class="feedback"></div>
+                <div id="geminiApiKeyFeedback" class="feedback text text--sm text--error"></div>
               </div>
             </div>
             <!-- Add more providers here -->
           </div>
-          <h2 class="mdc-typography--headline6">Manage Prompts</h2>
+          <h2 class="mdc-typography--headline6 text text--md text--semibold text--primary">Manage Prompts</h2>
           <textarea id="settingsCustomPrompt" class="mdc-text-field__input" rows="3" placeholder="Write your new prompt definition here..." aria-label="Prompt Text (Settings)"></textarea>
           <div class="prompt-save-row">
             <input type="text" id="promptName" class="mdc-text-field__input" placeholder="Prompt name (e.g. 'Summarize Article')" aria-label="Prompt Name" />
-            <button id="savePromptBtn" class="mdc-button mdc-button--outlined" aria-label="Save Prompt"><span class="material-icons">save</span></button>
+            <button id="savePromptBtn" class="mdc-button mdc-button--outlined btn" aria-label="Save Prompt"><span class="material-icons">save</span></button>
           </div>
           <ul id="promptList" class="prompt-list"></ul>
-          <div id="promptFeedback" class="feedback"></div>
+          <div id="promptFeedback" class="feedback text text--sm text--error"></div>
         </div>
-        <div id="advancedToggle" class="advanced-toggle">Advanced ▼</div>
+        <div id="advancedToggle" class="advanced-toggle text text--sm text--primary">Advanced ▼</div>
         <div class="reset-btn-center">
-          <button id="resetPromptsBtn" class="mdc-button reset-prompts-btn"><span class="material-icons">refresh</span>Reset Prompts</button>
+          <button id="resetPromptsBtn" class="mdc-button reset-prompts-btn btn"><span class="material-icons">refresh</span>Reset Prompts</button>
         </div>
       </section>
 
       <!-- Main Prompt Card -->
-      <section id="mainPromptArea" class="main-card" aria-label="Prompt Area">
-        <div class="mdc-card__content">
+      <section id="mainPromptArea" class="card main-card" aria-label="Prompt Area">
+        <div class="card__content">
           <div class="select-row-horizontal">
             <div class="select-wrapper">
               <select id="promptSelect" aria-label="Select Prompt"></select>
@@ -97,18 +104,17 @@
             </div>
           </div>
           <textarea id="mainCustomPrompt" rows="3" placeholder="Edit or write your prompt here..." aria-label="Prompt Text"></textarea>
-          <div class="context-mode-toggle" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
-            <span class="context-label">Shallow</span>
-            <label class="switch">
-              <input type="checkbox" id="contextModeToggle">
-              <span class="slider round"></span>
-            </label>
-            <span class="context-label">Deep Context</span>
-          </div>
           <div class="button-row">
-            <button id="assist">Assist</button>
+            <button id="assist" class="btn">Assist</button>
           </div>
-          <div id="result" class="result"></div>
+          <div id="result" class="result">
+            <div class="result-header">
+              <button id="copyResult" class="icon-btn" title="Copy to clipboard">
+                <span class="material-icons">content_copy</span>
+              </button>
+            </div>
+            <div id="resultContent"></div>
+          </div>
           <img id="screenshot" class="screenshot" alt="Screenshot preview" />
           <div id="contextContainer" class="context-container"></div>
         </div>
