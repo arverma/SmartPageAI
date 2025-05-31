@@ -88,10 +88,21 @@ export class PopupUI {
   }
 
   updateResult(result, context, screenshotUrl) {
+    // Debug: Log the raw model output
+    console.log('[DEBUG] Raw model output:', result);
+
     // Render the Markdown output as before
     if (!result) {
       this.elements.result.innerHTML = '<div class="error">No result generated</div>';
       return;
+    }
+
+    // Preprocess: Remove code fences if present
+    let cleanResult = result.trim();
+    if (cleanResult.startsWith('```markdown')) {
+      cleanResult = cleanResult.replace(/^```markdown\s*/, '').replace(/```$/, '').trim();
+    } else if (cleanResult.startsWith('```')) {
+      cleanResult = cleanResult.replace(/^```\s*/, '').replace(/```$/, '').trim();
     }
 
     // Clear and set up the result area
@@ -101,10 +112,19 @@ export class PopupUI {
     // Add result content
     let resultContent = document.createElement('div');
     resultContent.id = 'resultContent';
-    resultContent.innerHTML = marked.parse(result);
+    const parsed = marked.parse(cleanResult);
+    // Debug: Log the parsed HTML
+    console.log('[DEBUG] Parsed HTML:', parsed);
+    resultContent.innerHTML = parsed;
     resultContent.style.position = 'relative';
     resultContent.style.overflow = 'auto';
     this.elements.result.appendChild(resultContent);
+
+    // Debug: Log computed styles of the result content
+    setTimeout(() => {
+      const styles = window.getComputedStyle(resultContent);
+      console.log('[DEBUG] #resultContent computed styles:', styles);
+    }, 0);
 
     // Add floating copy button
     let copyBtn = document.createElement('button');

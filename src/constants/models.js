@@ -9,7 +9,7 @@ export const MODEL_LIST = [
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo (Free)', provider: 'openai' },
   // Gemini models (only image-capable)
   { id: 'gemini-2.5-pro-preview-05-06', name: 'Gemini 2.5 Pro Preview (Premium)', provider: 'gemini' },
-  { id: 'gemini-2.5-flash-preview-05-20', name: 'Gemini 2.5 Flash Preview (Premium)', provider: 'gemini' },
+  { id: 'gemini-2.5-flash-preview-05-20', name: 'Gemini 2.5 Flash Preview (Free)', provider: 'gemini' },
   { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash (Free)', provider: 'gemini' },
   { id: 'gemini-2.0-flash-lite', name: 'Gemini 2.0 Flash Lite (Free)', provider: 'gemini' },
   { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro (Premium)', provider: 'gemini' },

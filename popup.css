@@ -418,7 +418,7 @@ input:focus, textarea:focus, select:focus, button:focus {
   display: flex;
   flex-direction: row;
   gap: 8px;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
 }
 .prompt-save-row input[type="text"] {
   flex: 1 1 auto;
@@ -452,7 +452,7 @@ input:focus, textarea:focus, select:focus, button:focus {
   color: #fff;
 }
 #settingsCustomPrompt {
-  margin-bottom: 8px;
+  margin-bottom: 0px;
 }
 
 .prompt-save-row button,
@@ -474,7 +474,6 @@ input:focus, textarea:focus, select:focus, button:focus {
 }
 
 .advanced-toggle {
-  margin: 0 0 12px 0;
   position: static;
   display: block;
   width: 100%;
@@ -887,7 +886,6 @@ input:checked + .slider:before {
   font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--primary);
-  margin: 0 0 10px 0;
 }
 .mdc-snackbar {
   background: #323232;

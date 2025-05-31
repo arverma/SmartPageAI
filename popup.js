@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       // Add Markdown formatting instruction suffix
-      const markdownSuffix = "\n\nPlease format your response in Markdown. Use bullet points, numbered lists, and headings where appropriate. Be precise, concise, and correct in your answer.";
+      const markdownSuffix = "\n\nPlease format your response in Markdown. Use bullet points, numbered lists, code blocks, dividers, and headings where appropriate. Be to the point, highly optimised, and aim to achive 100% correctness in your answer. You are an agent that is trying to help the user with all your knowledge and resources.";
       const finalPrompt = promptText + markdownSuffix;
       // Show loading state
       popupUI.updateLoadingState(true);

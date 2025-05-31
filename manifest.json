@@ -1,16 +1,14 @@
 {
   "manifest_version": 3,
   "name": "WebPage Assistance",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Smart assistant for any webpage",
   "permissions": [
-    "tabs",
+    "activeTab",
     "storage",
     "scripting",
-    "sidePanel",
-    "activeTab"
+    "sidePanel"
   ],
-  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/background.js",
     "type": "module"
