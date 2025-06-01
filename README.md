@@ -1,7 +1,7 @@
 # 📖 WebPage Assistance (Chrome Extension)
-**Ask For Anything On Any WebPage**
-In an era where information is at your fingertips, WebPage Assistance ensures you make the most of every page. This AI-driven extension integrates seamlessly with your browser, offering real-time assistance for everything from summarizing articles to answering complex questions. Whether you're diving into detailed reports, exploring new topics, or refining professional emails, WebPage Assistance empowers you with clarity, speed, and efficiency.
 
+**Ask For Anything On Any WebPage**  
+In an era where information is at your fingertips, WebPage Assistance ensures you make the most of every page. This AI-driven extension integrates seamlessly with your browser, offering real-time assistance for everything from summarizing articles to answering complex questions. Whether you're diving into detailed reports, exploring new topics, or refining professional emails, WebPage Assistance empowers you with clarity, speed, and efficiency.
 
 <div align="center">
   <img src="images/doc/1.png" width="350" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
@@ -13,6 +13,8 @@ In an era where information is at your fingertips, WebPage Assistance ensures yo
 ## Features
 
 **Your Gateway to Enhanced Online Interaction**
+
+
 **✨ Custom Prompts**
 - Streamline your tasks and tailor your browsing experience with personalized prompts, perfect for both students and professionals.
 - Simplify complex topics and automate content reviews.
@@ -35,47 +37,59 @@ In an era where information is at your fingertips, WebPage Assistance ensures yo
 
 ---
 
-## 🚀 Getting Started
+## Custom Prompt Examples
+
+- **Email Reply Generator**
+    ```markdown
+    Generate a professional and courteous reply to the email currently on my screen. Ensure the response addresses all key points mentioned and maintains a tone appropriate for business communication.
+    ```
+- **Meeting Summary Creator**
+    ```markdown
+    Create a concise summary of the meeting notes displayed on my screen. Highlight key decisions, action items, and next steps, ensuring clarity and completeness for all participants.
+    ```
+- **Task Organizer**
+    ```markdown
+    Organize the tasks listed on my screen into a prioritized to-do list. Assign deadlines based on urgency and importance, and suggest any additional steps needed to complete each task efficiently.
+    ```
+- **Social Media Post Crafter**
+    ```markdown
+    Craft a compelling social media post based on the content on my screen. Ensure it is engaging and tailored for the intended platform, including appropriate hashtags and a call-to-action.
+    ```
+- **Document Proofreader**
+    ```markdown
+    Proofread the document text displayed on my screen for grammar, spelling, and punctuation errors. Suggest improvements for clarity, tone, and style to enhance the overall readability and professionalism of the document.
+    ```
+
+---
+
+## 🤝 Contributing
+
+Contributions, suggestions, and new prompt ideas are welcome! If you have an idea for a new feature, prompt, or improvement, please open an issue or submit a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. We encourage both students and professionals to help make WebPage Assistance even better for everyone.
+
+---
+
+## Getting Started
 
 1. **Install the Extension**
    - Clone this repository or download the latest release
    - Load it as an unpacked extension in Chrome
-
 2. **Setup**
    - Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/docs/api-reference/introduction)
    - Get your Google API key for Gemini from [Google AI Studio](https://makersuite.google.com/app/apikey)
    - Add your API keys in the extension settings panel
-    <img src="images/doc/4.png" width="300" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
-
 3. **Using the Extension**
    - Click the extension icon to open the side panel
-    <img src="images/doc/2.png" width="300" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
+   - Choose your preferred analysis mode
+   - Select screenshot type (Full Page or Visible Area)
+   - Click "Assist" to start the analysis
+   - View results in beautifully formatted Markdown
 
-1. **Custom Prompt Examples**
-     - LinkedIn Profile Reviewer
-         ```markdown
-         Review the LinkedIn Profile from the eye of a technical recruiter who is looking for a senior Data Engineer for L3 position. Score each section on the scale of 10 and suggest actionable improvements.
-         ```
-     - LinkedIn Profile Reviewer
-         ```markdown
-         Review the LinkedIn Profile from the eye of a technical recruiter who is looking for a senior Data Engineer for L3 position. Score each section on the scale of 10 and suggest actionable improvements.
-         ```
+<div align="center">
+    <img src="images/doc/2.png" width="300" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
+    <img src="images/doc/4.png" width="300" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
+</div>
 
 ---
 
-## 🛠️ Developer Notes
-
-- **Modular Architecture**
-  - Clean separation of concerns with dedicated services
-  - Centralized configuration in `src/constants/`
-  - Reusable components and utilities
-
-- **Easy to Extend**
-  - Add default prompts in `src/constants/defaultPrompts.js`
-  - Support for new models in `src/constants/models.js`
-  - Well-documented code structure
-
-- **Production Ready**
-  - Optimized performance
-  - Minimal logging
-  - Comprehensive error handling
+## Contact
+For questions, support, or feedback, please visit the [support site](https://sites.google.com/view/arverma/webpage-assistance?authuser=0).
