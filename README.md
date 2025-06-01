@@ -20,7 +20,7 @@ In an era where information is at your fingertips, WebPage Assistance ensures yo
 - Simplify complex topics and automate content reviews.
 - Create custom modes to match your daily needs.
 <div align="center">
-    <img src="images/doc/5.png" width="450" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
+    <img src="images/doc/5.png" width="350" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
 </div>
 
 **📸 Full Page Screenshot**
@@ -85,8 +85,8 @@ Contributions, suggestions, and new prompt ideas are welcome! If you have an ide
    - View results in beautifully formatted Markdown
 
 <div align="center">
-    <img src="images/doc/2.png" width="300" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
-    <img src="images/doc/4.png" width="300" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
+    <img src="images/doc/2.png" width="350" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
+    <img src="images/doc/4.png" width="350" style="box-shadow:0 4px 16px rgba(0,0,0,0.18);margin:8px;"/>
 </div>
 
 ---
